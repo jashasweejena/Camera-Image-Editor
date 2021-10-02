@@ -8,6 +8,8 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.webkit.MimeTypeMap
@@ -17,6 +19,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.example.image_editor_assignment.KEY_EVENT_EXTRA
 import com.example.image_editor_assignment.R
 import com.example.image_editor_assignment.databinding.CameraUiContainerBinding
@@ -171,6 +175,13 @@ class CameraPreviewFragment : Fragment() {
                         // If the folder selected is an external media directory, this is
                         // unnecessary but otherwise other apps will not be able to access our
                         // images unless we scan them using [MediaScannerConnection]
+
+                        // Navigate to the ImageEditorFragment once you click a photo.
+                        val handler = Handler(Looper.getMainLooper())
+                        handler.post {
+                            // Execute this on the main thread to avoid getting ".lang.IllegalStateException: Method addObserver must be called on the main thread"
+                            findNavController().navigate(CameraPreviewFragmentDirections.actionCameraPreviewFragmentToImageEditorFragment(savedUri.toString()))
+                        }
                         val mimeType = MimeTypeMap.getSingleton()
                             .getMimeTypeFromExtension(savedUri.toFile().extension)
                         MediaScannerConnection.scanFile(

@@ -9,5 +9,18 @@
         android:id="@+id/cameraPreviewFragment"
         android:name="com.example.image_editor_assignment.fragments.CameraPreviewFragment"
         android:label="fragment_camera_preview"
-        tools:layout="@layout/fragment_camera_preview" />
+        tools:layout="@layout/fragment_camera_preview" >
+        <action
+            android:id="@+id/action_cameraPreviewFragment_to_imageEditorFragment"
+            app:destination="@id/imageEditorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageEditorFragment"
+        android:name="com.example.image_editor_assignment.fragments.ImageEditorFragment"
+        android:label="fragment_image_editor"
+        tools:layout="@layout/fragment_image_editor" >
+        <argument
+            android:name="imageUri"
+            app:argType="string" />
+    </fragment>
 </navigation>
