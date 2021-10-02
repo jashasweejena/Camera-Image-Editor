@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +9,19 @@
    <ImageView
        android:id="@+id/image_view"
        android:layout_width="match_parent"
-       android:layout_height="match_parent" />
+       android:layout_height="match_parent"
+       tools:src="@android:drawable/ic_notification_clear_all" />
 
-</FrameLayout>
+   <Button
+       android:layout_width="100dp"
+       android:layout_height="100dp"
+       android:layout_marginBottom="24dp"
+       android:background="@color/black"
+       android:gravity="bottom"
+       android:id="@+id/rotate_btn"
+       android:text="Rotate"
+       app:layout_constraintBottom_toBottomOf="@+id/image_view"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
