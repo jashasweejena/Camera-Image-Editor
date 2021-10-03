@@ -15,6 +15,7 @@ import com.example.image_editor_assignment.models.Operation
 import com.example.image_editor_assignment.models.OperationData
 import com.example.image_editor_assignment.models.OperationStack
 import com.example.image_editor_assignment.models.Rotate
+import com.example.image_editor_assignment.helpers.extensions.*
 
 
 class ImageEditorFragment : Fragment() {
@@ -40,7 +41,20 @@ class ImageEditorFragment : Fragment() {
                 val rotateOperation: Operation = Rotate(initialAngle = it)
                 rotateOperation.performOperation(OperationData(rotateByAngle = 90f))
                 operationStack.addOperation(rotateOperation)
-                rotateImage(90f, imageEditorBinding?.imageView)
+                imageEditorBinding?.imageView?.rotateImage(90f, object : Animator.AnimatorListener {
+                    override fun onAnimationStart(p0: Animator?) {
+                        imageEditorBinding?.rotateBtn?.isEnabled = false
+                    }
+
+                    override fun onAnimationEnd(p0: Animator?) {
+                        imageEditorBinding?.rotateBtn?.isEnabled = true
+                    }
+
+                    override fun onAnimationCancel(p0: Animator?) = Unit
+
+                    override fun onAnimationRepeat(p0: Animator?) = Unit
+
+                })
 
                 imageEditorBinding?.undoBtn?.isEnabled = true
             }
@@ -48,8 +62,8 @@ class ImageEditorFragment : Fragment() {
         imageEditorBinding?.undoBtn?.setOnClickListener {
             if (!operationStack.isEmpty()) {
                 val lastOperation = operationStack.popStack()
-                lastOperation.getLastOperationInput()?.rotateByAngle?.let {
-                    rotateImage(-1f * it, imageEditorBinding?.imageView)
+                lastOperation.getLastOperationInput()?.rotateByAngle?.let { angle ->
+                    imageEditorBinding?.imageView?.rotateImage(-1f * angle)
                 }
             }
 
@@ -58,35 +72,6 @@ class ImageEditorFragment : Fragment() {
             }
 
         }
-    }
-
-    private fun rotateImage(angle: Float, imageView: ImageView?) {
-        imageView?.let { imageView ->
-            val h = imageView.height
-            val w = imageView.width
-
-            val scaleFactor: Float =
-                if (imageView.rotation / angle % 2 == 0f) (w * 1.0f / h) else 1f
-
-            imageView.animate()?.rotationBy(angle)?.scaleX(scaleFactor)?.scaleY(scaleFactor)
-                ?.setListener(
-                    object : Animator.AnimatorListener {
-                        override fun onAnimationStart(p0: Animator?) {
-                            imageEditorBinding?.rotateBtn?.isEnabled = false
-                        }
-
-                        override fun onAnimationEnd(p0: Animator?) {
-                            imageEditorBinding?.rotateBtn?.isEnabled = true
-                        }
-
-                        override fun onAnimationCancel(p0: Animator?) = Unit
-
-                        override fun onAnimationRepeat(p0: Animator?) = Unit
-
-                    })
-        }
-
-
     }
 
     companion object {
