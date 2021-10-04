@@ -8,9 +8,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 
-const val KEY_EVENT_ACTION = "key_event_action"
-const val KEY_EVENT_EXTRA = "key_event_extra"
-
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
