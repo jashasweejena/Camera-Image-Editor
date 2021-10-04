@@ -15,14 +15,5 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        var galleryPickerImage = this.registerForActivityResult(GetContent()) { uri: Uri? ->
-//            Toast.makeText(this, uri.toString(), Toast.LENGTH_SHORT).show();
-//        }
-//
-//        val openGallery = findViewById<Button>(R.id.openGalleryBtn)
-//        openGallery.setOnClickListener {
-//            galleryPickerImage.launch("image/*")
-//        }
     }
 }

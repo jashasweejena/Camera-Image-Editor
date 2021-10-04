@@ -46,14 +46,6 @@ class ImageEditorViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun isStackEmpty(): Boolean = operationStack.isEmpty()
-    private fun getOutputDirectory(): File {
-        val appContext = getApplication<Application>().applicationContext
-        val mediaDir = appContext.externalMediaDirs.firstOrNull()?.let {
-            File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else appContext.filesDir
-    }
 
      fun saveRotatedImage(loadedBitmap: Bitmap): File? {
 
@@ -76,7 +68,7 @@ class ImageEditorViewModel(application: Application) : AndroidViewModel(applicat
             matrix,
             true
         )
-        val file = Util.createFile(getOutputDirectory(), "", ".png")
+        val file = Util.createFile(Util.getOutputDirectory(getApplication<Application>().applicationContext), "", ".png")
         val mimeType = MimeTypeMap.getSingleton()
             .getMimeTypeFromExtension(file.extension)
         val uri = savebitmap(updatedBitmap, file).absolutePath
