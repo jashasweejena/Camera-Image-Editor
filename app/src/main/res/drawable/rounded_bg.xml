@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <item android:state_pressed="true" android:color="@color/icPressed" />
+    <item android:state_focused="true" android:color="@color/icFocused" />
+    <solid android:color="@color/selector_ic" />
+    <corners android:radius="12dp" />
+</shape>
+
