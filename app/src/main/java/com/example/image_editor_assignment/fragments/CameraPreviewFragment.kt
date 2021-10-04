@@ -52,6 +52,15 @@ class CameraPreviewFragment : Fragment() {
         private fun createFile(baseFolder: File, format: String, extension: String) =
             File(baseFolder, SimpleDateFormat(format, Locale.US)
                 .format(System.currentTimeMillis()) + extension)
+
+        /** Use external media if it is available, our app's file directory otherwise */
+        fun getOutputDirectory(context: Context): File {
+            val appContext = context.applicationContext
+            val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
+                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() } }
+            return if (mediaDir != null && mediaDir.exists())
+                mediaDir else appContext.filesDir
+        }
     }
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -132,7 +141,7 @@ class CameraPreviewFragment : Fragment() {
         )
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-            val outputImageFile = createFile(requireContext().applicationContext.filesDir, FILENAME, PHOTO_EXTENSION)
+            val outputImageFile = createFile(getOutputDirectory(requireContext()), FILENAME, PHOTO_EXTENSION)
 
             // Setup image capture metadata
             val metadata = ImageCapture.Metadata().apply {

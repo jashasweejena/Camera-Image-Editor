@@ -16,6 +16,7 @@
        tools:src="@android:drawable/ic_notification_clear_all" />
 
    <ImageButton
+       android:id="@+id/save_btn"
        android:layout_width="@dimen/edit_btn_dimension"
        android:layout_height="@dimen/edit_btn_dimension"
        android:contentDescription="@string/save_button"
