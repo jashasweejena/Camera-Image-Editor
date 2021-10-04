@@ -22,5 +22,16 @@
         <argument
             android:name="imageUri"
             app:argType="string" />
+        <action
+            android:id="@+id/action_imageEditorFragment_to_imageCropperFragment"
+            app:destination="@id/imageCropperFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageCropperFragment"
+        android:name="com.example.image_editor_assignment.fragments.ImageCropperFragment"
+        android:label="ImageCropperFragment" >
+        <argument
+            android:name="imageUri"
+            app:argType="string" />
     </fragment>
 </navigation>

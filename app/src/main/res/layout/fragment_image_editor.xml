@@ -20,22 +20,34 @@
        android:gravity="bottom"
        android:text="Rotate"
        app:layout_constraintBottom_toBottomOf="@+id/undo_btn"
-       app:layout_constraintEnd_toStartOf="@+id/undo_btn"
+       app:layout_constraintEnd_toStartOf="@+id/image_view"
        app:layout_constraintHorizontal_bias="0.5"
-       app:layout_constraintStart_toEndOf="@+id/image_view"
+       app:layout_constraintStart_toEndOf="@+id/undo_btn"
        app:layout_constraintTop_toTopOf="@+id/undo_btn" />
 
    <Button
        android:id="@+id/undo_btn"
        android:layout_width="100dp"
        android:layout_height="100dp"
-       android:layout_marginBottom="16dp"
        android:background="@color/black"
        android:gravity="bottom"
        android:text="Undo"
-       app:layout_constraintBottom_toBottomOf="@+id/image_view"
-       app:layout_constraintEnd_toStartOf="@+id/image_view"
+       app:layout_constraintEnd_toStartOf="@+id/rotate_btn"
        app:layout_constraintHorizontal_bias="0.5"
-       app:layout_constraintStart_toEndOf="@+id/rotate_btn" />
+       app:layout_constraintStart_toEndOf="@+id/crop_btn"
+       app:layout_constraintTop_toTopOf="@+id/crop_btn" />
+
+   <Button
+       android:id="@+id/crop_btn"
+       android:layout_width="100dp"
+       android:layout_height="100dp"
+       android:layout_marginBottom="16dp"
+       android:background="@color/black"
+       android:gravity="bottom"
+       android:text="Crop"
+       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintEnd_toStartOf="@+id/undo_btn"
+       app:layout_constraintHorizontal_bias="0.5"
+       app:layout_constraintStart_toEndOf="@+id/image_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

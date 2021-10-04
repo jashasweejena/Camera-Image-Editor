@@ -12,7 +12,4 @@ import android.widget.ImageView
 
             this.animate()?.rotationBy(angle)?.scaleX(scaleFactor)?.scaleY(scaleFactor)
                 ?.setListener(animationCallback)
-
-
-
     }

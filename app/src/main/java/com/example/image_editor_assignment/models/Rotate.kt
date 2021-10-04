@@ -24,7 +24,7 @@ class Rotate(initialAngle: Float) : Operation {
             rotateByAngle(it)
         }
         this.operationData = operationData
-        this.lastOperationResult = OperationData(rotateByAngle = this.currentAngle)
+        this.lastOperationResult = OperationData(rotateByAngle = this.currentAngle, type = OperationType.ROTATE)
     }
 
     override fun getOperationType() = OperationType.ROTATE
