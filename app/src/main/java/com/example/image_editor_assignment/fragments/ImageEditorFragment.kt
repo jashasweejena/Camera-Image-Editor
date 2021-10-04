@@ -13,29 +13,17 @@ import android.animation.Animator
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.Matrix
 import android.graphics.Rect
-import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import android.webkit.MimeTypeMap
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.core.net.toFile
-import com.example.image_editor_assignment.R
+import androidx.lifecycle.ViewModelProvider
 import com.example.image_editor_assignment.helpers.extensions.*
 import com.example.image_editor_assignment.models.*
 import com.theartofdev.edmodo.cropper.CropImage
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
-import android.os.Environment
-import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
+import com.example.image_editor_assignment.viewmodels.ImageEditorViewModel
 
 
 class ImageEditorFragment : Fragment() {
@@ -45,10 +33,7 @@ class ImageEditorFragment : Fragment() {
     var lastCropRectData: Rect? = null
     var lastCropPoints: FloatArray? = null
 
-    //TODO: Put the data handling part into ViewModel
-    var operationStack: OperationStack = OperationStack()
-
-    var latestRotationOperation: Rotate? = null
+    lateinit var viewModel: ImageEditorViewModel
 
     lateinit var loadedBitmap: Bitmap
     lateinit var loadedImageUri: String
@@ -67,13 +52,7 @@ class ImageEditorFragment : Fragment() {
             override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
                 val result = CropImage.getActivityResult(intent)
                 if (lastCropRectData != result?.cropRect) {
-                    crop.performOperation(
-                        OperationData(
-                            cropRect = result?.cropRect,
-                            type = OperationType.CROP
-                        )
-                    )
-                    operationStack.addOperation(crop)
+                    viewModel.performCrop(crop, result?.cropRect)
                     imageEditorBinding?.undoBtn?.isEnabled = true
                     lastCropRectData = result?.cropRect
                     lastCropPoints = result?.cropPoints
@@ -111,19 +90,16 @@ class ImageEditorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this, ImageEditorViewModel.Factory(requireActivity().application))
+            .get(ImageEditorViewModel::class.java)
+
         imageEditorBinding?.imageView?.let { Glide.with(it.context).load(args.imageUri).into(it) }
 
 
 
         imageEditorBinding?.rotateBtn?.setOnClickListener {
             imageEditorBinding?.imageView?.rotation?.let {
-                //TODO: Put the rotate Operation into the extension function somehow to make it seamless
-                val rotateOperation: Operation = Rotate(initialAngle = it)
-                rotateOperation.performOperation(OperationData(rotateByAngle = 90f))
-                operationStack.addOperation(rotateOperation)
-                latestRotationOperation = rotateOperation as Rotate
-
-//                val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, )
+                viewModel.performRotation(initialAngle = it)
                 imageEditorBinding?.imageView?.rotateImage(90f, object : Animator.AnimatorListener {
 
                     override fun onAnimationStart(p0: Animator?) {
@@ -144,8 +120,8 @@ class ImageEditorFragment : Fragment() {
             }
         }
         imageEditorBinding?.undoBtn?.setOnClickListener {
-            if (!operationStack.isEmpty()) {
-                val lastOperation = operationStack.popStack()
+            if (!viewModel.isStackEmpty()) {
+                val lastOperation = viewModel.popStack()
                 when (lastOperation.getOperationType()) {
                     OperationType.ROTATE -> {
                         lastOperation.getLastOperationInput()?.rotateByAngle?.let { angle ->
@@ -164,14 +140,14 @@ class ImageEditorFragment : Fragment() {
 
             }
 
-            if (operationStack.isEmpty()) {
+            if (viewModel.isStackEmpty()) {
                 it.isEnabled = false
             }
 
         }
 
         imageEditorBinding?.cropBtn?.setOnClickListener {
-            val rotatedFile = saveRotatedImage()
+            val rotatedFile = viewModel.saveRotatedImage(loadedBitmap)
             var uriString = args.imageUri
             rotatedFile?.absolutePath?.let {
                 uriString = "file://$it"
@@ -180,73 +156,13 @@ class ImageEditorFragment : Fragment() {
         }
 
         imageEditorBinding?.saveBtn?.setOnClickListener {
-            saveRotatedImage()
+            viewModel.saveRotatedImage(loadedBitmap)
         }
     }
-
-    private fun saveRotatedImage(): File? {
-        if (!operationStack.isEmpty()) {
-            val matrix = Matrix()
-            matrix.postRotate(0f)
-            imageEditorBinding?.imageView?.rotation?.let { it1 ->
-                matrix.postRotate(
-                    latestRotationOperation?.getLastOperationOutput()?.rotateByAngle?.plus(90f)
-                        ?: 0f
-                )
-            }
-            val updatedBitmap = Bitmap.createBitmap(
-                loadedBitmap,
-                0,
-                0,
-                loadedBitmap.width,
-                loadedBitmap.height,
-                matrix,
-                true
-            )
-            val file = createFile(getOutputDirectory(requireContext()), "", ".png")
-            val mimeType = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(file.extension)
-            val uri = savebitmap(updatedBitmap, file).absolutePath
-            loadedImageUri = uri
-            MediaScannerConnection.scanFile(
-                context,
-                arrayOf(file.absolutePath),
-                arrayOf(mimeType)
-            ) { _, uri ->
-                Log.d(TAG, "Image capture scanned into media store: $uri")
-            }
-            Toast.makeText(context, "onViewCreated: File Saved: $uri", Toast.LENGTH_SHORT)
-            Log.d(TAG, "onViewCreated: File Saved: $uri")
-            return file
-        }
-        return null
-    }
-    private fun savebitmap(bmp: Bitmap, file: File): File {
-        val bytes = ByteArrayOutputStream()
-        bmp.compress(Bitmap.CompressFormat.JPEG, 60, bytes)
-        val fo = FileOutputStream(file)
-        fo.write(bytes.toByteArray())
-        fo.close()
-        return file
-    }
-
 
     companion object {
         private const val TAG = "ImageEditorFragment"
         var fileName = "${System.currentTimeMillis()}"
-        private fun createFile(baseFolder: File, format: String, extension: String) =
-            File(baseFolder, fileName + extension)
-
-        /** Use external media if it is available, our app's file directory otherwise */
-        fun getOutputDirectory(context: Context): File {
-            val appContext = context.applicationContext
-            val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
-                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() } }
-            return if (mediaDir != null && mediaDir.exists())
-                mediaDir else appContext.filesDir
-        }
-
-
 
     }
 }
