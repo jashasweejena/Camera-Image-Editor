@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.image_editor_assignment.databinding.FragmentImageEditorBinding
@@ -18,12 +17,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.navigation.fragment.findNavController
 import com.example.image_editor_assignment.helpers.extensions.*
 import com.example.image_editor_assignment.models.*
 import com.theartofdev.edmodo.cropper.CropImage
-import android.graphics.Bitmap
-import android.provider.MediaStore
 
 class ImageEditorFragment : Fragment() {
     val args: ImageEditorFragmentArgs by navArgs()
@@ -31,7 +27,6 @@ class ImageEditorFragment : Fragment() {
 
     var lastCropRectData: Rect? = null
     var lastCropPoints: FloatArray? = null
-    var lastCropBitmap: Bitmap? = null
 
     //TODO: Put the data handling part into ViewModel
     var operationStack: OperationStack = OperationStack()
@@ -59,11 +54,6 @@ class ImageEditorFragment : Fragment() {
                     operationStack.addOperation(crop)
                     imageEditorBinding?.undoBtn?.isEnabled = true
                     lastCropRectData = result?.cropRect
-                    lastCropBitmap =
-                        MediaStore.Images.Media.getBitmap(
-                            requireActivity().contentResolver,
-                            result?.uri
-                        )
                     lastCropPoints = result?.cropPoints
                 }
                 return result?.uri
@@ -147,8 +137,6 @@ class ImageEditorFragment : Fragment() {
         }
 
         imageEditorBinding?.cropBtn?.setOnClickListener {
-//            findNavController().navigate(ImageEditorFragmentDirections.actionImageEditorFragmentToImageCropperFragment(args.imageUri))
-
             cropActivityResultLauncher.launch(Uri.parse(args.imageUri))
         }
     }
